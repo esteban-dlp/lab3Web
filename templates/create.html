@@ -1,0 +1,55 @@
+{{define "create.html"}}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Agregar serie</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="/static/logo.svg" class="logo" alt="logo" />
+      <div>
+        <div class="title">Agregar serie</div>
+        <div class="subtitle">Formulario SSR (POST)</div>
+      </div>
+    </div>
+    <div class="actions">
+      <a class="btn ghost" href="/">Volver</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      {{if .Error}}
+        <div class="alert">{{.Error}}</div>
+      {{end}}
+
+      <form class="form" method="POST" action="/create">
+        <label>
+          Nombre de la serie
+          <input type="text" name="series_name" required />
+        </label>
+
+        <div class="grid2">
+          <label>
+            Episodio actual
+            <input type="number" name="current_episode" min="1" value="1" required />
+          </label>
+
+          <label>
+            Total de episodios
+            <input type="number" name="total_episodes" min="1" required />
+          </label>
+        </div>
+
+        <button class="btn" type="submit">Guardar</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
+{{end}}

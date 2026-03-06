@@ -1,0 +1,135 @@
+{{define "home.html"}}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Series Tracker</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="/static/logo.svg" alt="logo" class="logo" />
+      <div>
+        <div class="title">Series Tracker</div>
+        <div class="subtitle">SSR + SQLite + fetch()</div>
+      </div>
+    </div>
+    <div class="actions">
+      <a class="btn" href="/create">+ Agregar serie</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <form class="search" method="GET" action="/">
+        <input type="text" name="q" placeholder="Buscar por nombre..." value="{{.Query}}" />
+        <input type="hidden" name="sort" value="{{.Sort}}" />
+        <input type="hidden" name="dir" value="{{.Dir}}" />
+        <button class="btn" type="submit">Buscar</button>
+      </form>
+
+      <div class="meta">
+        <span>Total: <b>{{.TotalCount}}</b></span>
+        <span>Página <b>{{.Page}}</b> de <b>{{.TotalPages}}</b></span>
+      </div>
+    </section>
+
+    <section class="panel tablewrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Acciones</th>
+            <th>
+              <a class="thlink" href="/?q={{.Query}}&sort=name&dir={{toggleDir .Sort .Dir "name"}}&page=1&pageSize={{.PageSize}}">
+                Nombre
+              </a>
+            </th>
+            <th>
+              <a class="thlink" href="/?q={{.Query}}&sort=current&dir={{toggleDir .Sort .Dir "current"}}&page=1&pageSize={{.PageSize}}">
+                Vistos
+              </a>
+            </th>
+            <th>
+              <a class="thlink" href="/?q={{.Query}}&sort=total&dir={{toggleDir .Sort .Dir "total"}}&page=1&pageSize={{.PageSize}}">
+                Total
+              </a>
+            </th>
+            <th>Progreso</th>
+            <th>Rating (0–10)</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {{range .Series}}
+          <tr id="row-{{.ID}}">
+            <td class="rowActions">
+              <button class="btn small" onclick="nextEpisode({{.ID}})" type="button">+1</button>
+              <a class="btn ghost small" href="/edit?id={{.ID}}">Editar</a>
+              <button class="btn danger small" onclick="deleteSeries({{.ID}})" type="button">Eliminar</button>
+            </td>
+
+            <td class="nameCell">
+              <div class="name">{{.Name}}</div>
+              <div class="status" id="done-{{.ID}}">
+                {{if ge .CurrentEpisode .TotalEpisodes}}✅ Completada{{else}}&nbsp;{{end}}
+              </div>
+            </td>
+
+            <td><span id="cur-{{.ID}}">{{.CurrentEpisode}}</span></td>
+            <td><span id="tot-{{.ID}}">{{.TotalEpisodes}}</span></td>
+
+            <td>
+              <div class="progress">
+                <div class="bar" id="bar-{{.ID}}" style="width: {{progress .CurrentEpisode .TotalEpisodes}}%;"></div>
+              </div>
+              <div class="progressText" id="pct-{{.ID}}">{{progress .CurrentEpisode .TotalEpisodes}}%</div>
+            </td>
+
+            <td>
+              <div class="rating">
+                <input class="ratingInput" id="rate-{{.ID}}" type="number" min="0" max="10"
+                  value="{{if ge .Rating 0}}{{.Rating}}{{else}}0{{end}}" />
+                <button class="btn small" type="button" onclick="saveRating({{.ID}})">Guardar</button>
+              </div>
+            </td>
+          </tr>
+          {{end}}
+
+          {{if not .Series}}
+          <tr>
+            <td colspan="6" class="empty">No hay series. Agrega una en “Agregar serie”.</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel pager">
+      <div class="pagerLeft">
+        <span>Mostrar</span>
+        <a class="chip" href="/?q={{.Query}}&sort={{.Sort}}&dir={{.Dir}}&page=1&pageSize=5">5</a>
+        <a class="chip" href="/?q={{.Query}}&sort={{.Sort}}&dir={{.Dir}}&page=1&pageSize=10">10</a>
+        <a class="chip" href="/?q={{.Query}}&sort={{.Sort}}&dir={{.Dir}}&page=1&pageSize=20">20</a>
+      </div>
+
+      <div class="pagerRight">
+        {{if gt .Page 1}}
+          <a class="btn ghost" href="/?q={{.Query}}&sort={{.Sort}}&dir={{.Dir}}&page={{dec .Page}}&pageSize={{.PageSize}}">← Anterior</a>
+        {{end}}
+        {{if lt .Page .TotalPages}}
+          <a class="btn ghost" href="/?q={{.Query}}&sort={{.Sort}}&dir={{.Dir}}&page={{inc .Page}}&pageSize={{.PageSize}}">Siguiente →</a>
+        {{end}}
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Lab 5 — SSR</span>
+  </footer>
+</body>
+</html>
+{{end}}
